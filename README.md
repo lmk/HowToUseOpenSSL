@@ -5,8 +5,9 @@
 ### RSA
   - Private key 와 인증서 생성
     > openssl req -x509 -sha1 -nodes -days 1826 -newkey rsa:2048 -keyout rsaprivkey.pem -out ca.crt
+  - 인증서 검증
+    > openssl x509 -in ca.crt -text -noout 
   - 키 검증
-    > openssl x509 -in ca.crt -text -noout
     > openssl rsa -in rsaprivkey.pem -check
   - Private key pkcs12 형식으로 변환
     > openssl pkcs12 -export -nocerts -inkey rsaprivkey.pem -out rsaprivkey.p12
