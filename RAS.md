@@ -90,7 +90,7 @@ try {
 
     *out_len = size;
 }
-catch(TCHAR *msg)	{
+catch(TCHAR *msg)    {
     MessageBox(msg);
     isSuccess = false;
 }
@@ -101,50 +101,50 @@ if ( fp ) fclose(fp);
 * DER 형식의 private key로 RSA 생성
 
     * DER 형식의 private key 생성 명령
-```bash
-openssl rsa -inform PEM -outform DER -in privatekey.pem -out privatekey.der
-```
+    ```bash
+    openssl rsa -inform PEM -outform DER -in privatekey.pem -out privatekey.der
+    ```
 
     * RSA 생성 코드
-```c++
-const unsigned char *key = { /*DER 형식의 private*/ };
-const int key_len = 1192; // key의 길이
+    ```c++
+    const unsigned char *key = { /*DER 형식의 private*/ };
+    const int key_len = 1192; // key의 길이
 
-EVP_PKEY *pkey = d2i_PrivateKey(EVP_PKEY_RSA, NULL, &key, key_len);
-if ( pkey == NULL ) throw "RSA private Key read fail";
+    EVP_PKEY *pkey = d2i_PrivateKey(EVP_PKEY_RSA, NULL, &key, key_len);
+    if ( pkey == NULL ) throw "RSA private Key read fail";
 
-RSA *rsa = EVP_PKEY_get1_RSA(pkey);
-if ( rsa == NULL ) throw "EVP_PKEY_get1_RSA fail";
-```
+    RSA *rsa = EVP_PKEY_get1_RSA(pkey);
+    if ( rsa == NULL ) throw "EVP_PKEY_get1_RSA fail";
+    ```
 
 * DER 형식의 public key로 RSA 생성(294byte)
     * DER 형식의 public key 생성 명령
-```bash
-openssl rsa -pubin -in publickey.pem -inform PEM -pubout -out publickey.der -outform DER
-```
+    ```bash
+    openssl rsa -pubin -in publickey.pem -inform PEM -pubout -out publickey.der -outform DER
+    ```
     * RSA 생성 코드
-```c++
-RSA *rsa = d2i_RSA_PUBKEY(NULL, &key, key_len);
-```
+    ```c++
+    RSA *rsa = d2i_RSA_PUBKEY(NULL, &key, key_len);
+    ```
 
 * DER 형식의 public key로 RSA 생성(993byte)
     * DER 형식의 public key 생성 명령
-```bash
-openssl x509 -in ca.crt -pubkey -out ca_publickey.der -outform DER
-```
+    ```bash
+    openssl x509 -in ca.crt -pubkey -out ca_publickey.der -outform DER
+    ```
     * RSA 생성 코드
-```c++
-X509 *cert = d2i_X509(NULL, &key, key_len);
-if ( cert == NULL ) throw "RSA public key read fail";
+    ```c++
+    X509 *cert = d2i_X509(NULL, &key, key_len);
+    if ( cert == NULL ) throw "RSA public key read fail";
 
-EVP_PKEY *pkey = X509_get_pubkey(cert);
-if (pkey == NULL) throw "public key getting fail";
+    EVP_PKEY *pkey = X509_get_pubkey(cert);
+    if (pkey == NULL) throw "public key getting fail";
 
-int id = EVP_PKEY_id(pkey);
-if ( id != EVP_PKEY_RSA ) throw "is not RAS Encryption file";
+    int id = EVP_PKEY_id(pkey);
+    if ( id != EVP_PKEY_RSA ) throw "is not RAS Encryption file";
 
-RSA *rsa = EVP_PKEY_get1_RSA(pkey);
-```
+    RSA *rsa = EVP_PKEY_get1_RSA(pkey);
+    ```
 
 * 순수한 public key(256byte) 로 RSA 생성하기
 ```c++
@@ -156,11 +156,11 @@ RSA *rsa = EVP_PKEY_get1_RSA(pkey);
  */
 inline char *ASN1_MAKE_HEX_LENGTH(int size, char *out)
 {
-	if( size < 0x81 ) sprintf(out, "%02X", size);
-	else if ( size == 0x81 ) sprintf(out, "81%02X", size);
-	else if ( size > 0x81 ) sprintf(out, "82%04X", size);
+    if( size < 0x81 ) sprintf(out, "%02X", size);
+    else if ( size == 0x81 ) sprintf(out, "81%02X", size);
+    else if ( size > 0x81 ) sprintf(out, "82%04X", size);
 
-	return out;
+    return out;
 }
 
 
@@ -174,8 +174,8 @@ int seq_size_of_byte, int_size_of_byte = (strlen((const char*)key) +2) / 2; // i
 
 ASN1_MAKE_HEX_LENGTH(int_size_of_byte, int_length);
 
-seq_size_of_byte = 1 + (strlen(int_length)/2) + int_size_of_byte	// public key block
-                    + 5;												// exponent block
+seq_size_of_byte = 1 + (strlen(int_length)/2) + int_size_of_byte    // public key block
+                    + 5;                                            // exponent block
 
 ASN1_MAKE_HEX_LENGTH(seq_size_of_byte, seq_length);
 
@@ -242,19 +242,19 @@ if ( read_size != size-1 ) throw "Private read fail";
 */
 bool parsingDer(const unsigned char *in, unsigned char *tag, int *length, unsigned char **data)
 {
-	int offset = 0;
-	*tag = in[0];
+    int offset = 0;
+    *tag = in[0];
 
-	if ( in[++offset] == 0x82 ) {
-		*length = (int)(in[offset+1] << 8 | in[offset+2]);
-		offset += 2;
-	} else {
-		*length = (int)(in[++offset]);
-	}
+    if ( in[++offset] == 0x82 ) {
+        *length = (int)(in[offset+1] << 8 | in[offset+2]);
+        offset += 2;
+    } else {
+        *length = (int)(in[++offset]);
+    }
 
-	*data = ( unsigned char *)&in[++offset];
+    *data = ( unsigned char *)&in[++offset];
 
-	return true;
+    return true;
 }
 
 unsigned char out[256];
@@ -326,9 +326,9 @@ char* ASN1_TIME_to_string(const ASN1_TIME* time, char out[DT_STRING_LENGTH])
     t.tm_sec += (str[i++] - '0');
 
     /* Note: we did not adjust the time based on time zone information */
-	time_t tt = mktime(&t);
-	//strftime(out, DT_STRING_LENGTH, "%Y-%m-%d %H:%M:%S", localtime(&tt));
-	strftime(out, DT_STRING_LENGTH, "%Y%m%d", localtime(&tt));
+    time_t tt = mktime(&t);
+    //strftime(out, DT_STRING_LENGTH, "%Y-%m-%d %H:%M:%S", localtime(&tt));
+    strftime(out, DT_STRING_LENGTH, "%Y%m%d", localtime(&tt));
 
     return out;
 }
@@ -378,18 +378,18 @@ out[bas64_size++] = 0;
 ```c++
 void hex2binary(unsigned char *dst, int *dst_len, const char *src)
 {
-	int src_len = strlen(src);
-	char *end =0;
-	char buf[3] = {0,};
-	int i=0;
+    int src_len = strlen(src);
+    char *end =0;
+    char buf[3] = {0,};
+    int i=0;
 
-	for(i=0; i<src_len; i++) {
-		strncpy(buf, &src[i*2], 2);
-		dst[i] = (char)strtol(buf, &end, 16);
-	}
+    for(i=0; i<src_len; i++) {
+        strncpy(buf, &src[i*2], 2);
+        dst[i] = (char)strtol(buf, &end, 16);
+    }
 
-	*dst_len = i/2;
+    *dst_len = i/2;
 
-	return;
+    return;
 }
 ```
