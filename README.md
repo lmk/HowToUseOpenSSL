@@ -9,7 +9,7 @@
     ````
   - 인증서 검증
     ```bash
-    $ openssl x509 -in ca.crt -text -noout 
+    $ openssl x509 -in ca.crt -text -noout
     ```
   - 키 검증
     ```bash
@@ -49,7 +49,21 @@
     ```bash
     $ openssl dsa -in dsaprivkey.pem -outform DER -pubout -out dsapubkey.der
     ```
-  - Pubilc key 검증 
+  - Pubilc key 검증
     ```bash
     $ openssl dsa -pubin -in dsapubkey.der -inform der
     ```
+### 파일 종류
+   * DER: ASN.1 프로토콜을 사용한 TLV(Tag + Length + Value) 형식의 Binary 파일
+   * PEM: DER을 base64로 인코딩한 Text 파일
+      - Header와 Tail이 추가된다.
+        - "-----BEGIN PUBLIC KEY-----", "-----END PUBLIC KEY-----"
+          - PEM_write_bio_RSA_PUBKEY()로 생성하는 경우
+        - "-----BEGIN RSA PUBLIC KEY-----", "-----BEGIN RSA PUBLIC KEY-----"
+          - PEM_write_bio_RSAPublicKey()로 생성하는 경우
+        - "-----BEGIN RSA PRIVATE KEY-----", "-----END RSA PRIVATE KEY-----"
+          - PEM_write_bio_RSAPrivateKey()로 생성
+      - 64글자마다 줄바꿈(\n)이 추가된다.
+   * CER, CRT: 인증서 파일. X509 포맷이며 public key, 시작일, 만료일등이 포함되어 있다.
+   * P12: PCKS12 포맷이며 private key 정보가 들어있다.
+      - rsa private key 안에는 rsa public key를 포함하고 있다.
