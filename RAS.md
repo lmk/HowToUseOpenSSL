@@ -29,6 +29,47 @@ RSA *rsa = RSA_new();
 if ( RSA_generate_key_ex(rsa, bits, bn, NULL) != 1 ) throw "RSA_generate_key_ex fail";
 ```
 
+* RSA로 인증서(.cer) 파일 생성
+```c++
+int serial = 0;
+int days = 365;
+EVP_PKEY *pk = EVP_PKEY_new();
+EVP_PKEY_assign_RSA(pk,rsa);
+rsa = NULL;
+
+X509 *x = X509_new();
+
+X509_set_version(x, 2);
+ASN1_INTEGER_set(X509_get_serialNumber(x),serial);
+X509_gmtime_adj(X509_get_notBefore(x),0);
+X509_gmtime_adj(X509_get_notAfter(x),(long)60*60*24*days);
+X509_set_pubkey(x,pk);
+
+name=X509_get_subject_name(x);
+X509_NAME_add_entry_by_txt(name,"C", MBSTRING_ASC, (const unsigned char*)"KR", -1, -1, 0);
+X509_NAME_add_entry_by_txt(name,"ST", MBSTRING_ASC, (const unsigned char*)"Seoul", -1, -1, 0);
+X509_NAME_add_entry_by_txt(name,"L", MBSTRING_ASC, (const unsigned char*)"Mapo", -1, -1, 0);
+X509_NAME_add_entry_by_txt(name,"O", MBSTRING_ASC, (const unsigned char*)"company", -1, -1, 0);
+X509_NAME_add_entry_by_txt(name,"OU", MBSTRING_ASC, (const unsigned char*)"test", -1, -1, 0);
+X509_NAME_add_entry_by_txt(name,"CN", MBSTRING_ASC, (const unsigned char*)"lmk", -1, -1, 0);
+X509_set_issuer_name(x,name);
+
+add_ext(x, NID_subject_key_identifier, "hash");
+add_ext(x, NID_authority_key_identifier, "keyid:always");
+add_ext(x, NID_basic_constraints, "CA:TRUE");
+
+X509_sign(x,pk,EVP_sha1());
+
+fp = fopen(".cer 경로", "wb");
+d2i_X509_fp(fp, &x);
+PEM_write_X509(fp, x);
+
+fclose(fp);
+EVP_PKEY_free(pkey);
+X509_free(x);
+// EVP_PKEY_assign_RSA() 하고 EVP_PKEY_free()했기 때문에 rsa는 free 할필요 없다.
+```
+
 * 인증서(.cer) 파일로 RSA 생성하기
 ```c++
 char path[256] = ".cer 경로";
